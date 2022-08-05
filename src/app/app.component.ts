@@ -5,6 +5,7 @@ import {Position} from "./interface/position";
 import {DataService} from "./data/waypoint.service";
 import {PlacementTile} from "./model/placement-tile";
 import {PlacementTileFactory} from "./factory/placement-tile-factory/placement-tile-factory.module";
+import {BehaviorSubject, Subject} from "rxjs";
 
 @Component({
   selector: 'app-root',
@@ -21,18 +22,22 @@ export class AppComponent implements OnInit,AfterViewInit{
   enemyFactory!: EnemyFactory;
   placementTileFactory!: PlacementTileFactory;
   dataService = new DataService();
+  activeTile = new Subject<PlacementTile>();
 
   ngOnInit(){
     this.canvas = this.initializeCanvas();
     this.canvasContext = this.canvas.getContext('2d')!;
     this.enemyFactory = new EnemyFactory(this.canvasContext,this.enemies);
-    this.
-    this.generatePlacementTilesData();
+    this.placementTileFactory = new PlacementTileFactory(this.canvasContext, this.activeTile);
 
     this.image = new Image();
     this.image.src = '../../assets/map.png';
 
     this.enemyFactory.generateWave(6);
+    this.placementTileFactory.generatePlacementTilesData();
+    this.activeTile.subscribe((val) =>{
+      console.log(val);
+    })
   }
 
   ngAfterViewInit(){
@@ -52,7 +57,7 @@ export class AppComponent implements OnInit,AfterViewInit{
     this.enemies.forEach(enemy => {
       enemy.update();
     });
-    this.placementTiles.forEach(tile => {
+    this.placementTileFactory.getPlacementTiles().forEach(tile => {
       tile.update();
     })
   }

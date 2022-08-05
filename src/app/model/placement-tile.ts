@@ -1,5 +1,6 @@
 import {Position} from "../interface/position";
 import {OnInit} from "@angular/core";
+import {Subject,Subscription,fromEvent} from "rxjs";
 
 export class PlacementTile {
   position!: Position;
@@ -7,14 +8,18 @@ export class PlacementTile {
   mouse!: Position;
   size = 64;
   color = 'rgba(255,255,255,0.2)';
-
-
-  constructor(context: CanvasRenderingContext2D, pos = {x:0, y:0}) {
+  activeTile: Subject<PlacementTile>
+  constructor(context: CanvasRenderingContext2D, pos = {x:0, y:0},
+              activeTileSub: Subject<PlacementTile>) {
     this.c = context;
+    this.activeTile = activeTileSub;
     this.position = pos;
-    window.addEventListener('mousemove',(event) => {
-      this.mouse = { x: event.clientX, y: event.clientY }
-    })
+    this.mouse = { x:0, y:0}
+    const mouseMovementSubscription = fromEvent<MouseEvent>(document, 'mousemove')
+      .subscribe((e: MouseEvent) => {
+          this.mouse.x = e.clientX;
+          this.mouse.y = e.clientY;
+        });
   }
 
   draw = () => {
@@ -24,13 +29,16 @@ export class PlacementTile {
 
   update = () => {
     this.draw();
-    if(this.mouse.x > this.position.x &&
-       this.mouse.x < this.position.x + this.size &&
-       this.mouse.y > this.position.y &&
-       this.mouse.y < this.position.y + this.size){
-      this.color = 'rgba(255,255,255,1)';
-    } else {
-      this.color = 'rgba(255,255,255,0.2)';
+    if(this.mouse){
+      if(this.mouse.x > this.position.x &&
+        this.mouse.x < this.position.x + this.size &&
+        this.mouse.y > this.position.y &&
+        this.mouse.y < this.position.y + this.size){
+        this.activeTile.next(this);
+        this.color = 'rgba(255,255,255,1)';
+      } else {
+        this.color = 'rgba(255,255,255,0.2)';
+      }
     }
   }
 

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import {BehaviorSubject} from 'rxjs';
 import {PlacementTile} from "../../model/placement-tile";
 import {DataService} from "../../data/waypoint.service";
+import {Subject} from "rxjs";
+import {Position} from "../../interface/position";
 
 @NgModule({
   declarations: [],
@@ -11,24 +13,33 @@ import {DataService} from "../../data/waypoint.service";
   ]
 })
 export class PlacementTileFactory {
+  private placementTiles: PlacementTile[] = [];
   subject = new BehaviorSubject(null);
   dataService = new DataService();
-  placementTiles: PlacementTile[] = [];
   c!: CanvasRenderingContext2D;
-  constructor() {
+  activeTile: Subject<PlacementTile>;
+
+  constructor(canvasContext:CanvasRenderingContext2D, activeTileSub: Subject<PlacementTile>) {
+    this.c = canvasContext;
+    this.activeTile = activeTileSub
   }
 
   generatePlacementTilesData = () => {
     this.dataService.getTowerPlacementTiles().forEach((row, y) =>{
       row.forEach((symbol,x) => {
         if (symbol === 14){
-          this.placementTiles.push(new PlacementTile(this.c,
-            {
-              x: x * 64,
-              y: y * 64
-            }))
+          let position: Position = {
+            x: x * 64,
+            y: y * 64
+          }
+          this.placementTiles.push(new PlacementTile(this.c,position,this.activeTile))
         }
       })
     })
   }
+
+  getPlacementTiles = () => {
+    return this.placementTiles;
+  }
+
 }
