@@ -1,7 +1,7 @@
 import {Position} from "../interface/position";
 import {OnInit} from "@angular/core";
 
-export class PlacementTile{
+export class PlacementTile {
   position!: Position;
   c!: CanvasRenderingContext2D;
   mouse!: Position;

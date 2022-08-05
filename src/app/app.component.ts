@@ -4,6 +4,7 @@ import {EnemyFactory} from "./factory/enemy-factory";
 import {Position} from "./interface/position";
 import {DataService} from "./data/waypoint.service";
 import {PlacementTile} from "./model/placement-tile";
+import {PlacementTileFactory} from "./factory/placement-tile-factory/placement-tile-factory.module";
 
 @Component({
   selector: 'app-root',
@@ -18,16 +19,19 @@ export class AppComponent implements OnInit,AfterViewInit{
   enemies: Enemy[] = [];
   placementTiles: PlacementTile[] = [];
   enemyFactory!: EnemyFactory;
+  placementTileFactory!: PlacementTileFactory;
   dataService = new DataService();
 
   ngOnInit(){
     this.canvas = this.initializeCanvas();
     this.canvasContext = this.canvas.getContext('2d')!;
+    this.enemyFactory = new EnemyFactory(this.canvasContext,this.enemies);
+    this.
     this.generatePlacementTilesData();
 
     this.image = new Image();
     this.image.src = '../../assets/map.png';
-    this.enemyFactory = new EnemyFactory(this.canvasContext,this.enemies);
+
     this.enemyFactory.generateWave(6);
   }
 
@@ -55,20 +59,5 @@ export class AppComponent implements OnInit,AfterViewInit{
 
   generateEnemy = (pos?: Position) => {
     this.enemies = this.enemyFactory.generateEnemy(pos);
-  }
-
-  generatePlacementTilesData = () => {
-    this.dataService.getTowerPlacementTiles().forEach((row, y) =>{
-      row.forEach((symbol,x) => {
-        if (symbol === 14){
-          this.placementTiles.push(new PlacementTile(this.canvasContext,
-            {
-            x: x * 64,
-            y: y * 64
-          }))
-        }
-      })
-    })
-    console.log(this.placementTiles);
   }
 }
