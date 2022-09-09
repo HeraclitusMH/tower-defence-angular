@@ -4,12 +4,13 @@ import {EnemyFactory} from "./factory/enemy-factory";
 import {Position} from "./interface/position";
 import {DataService} from "./data/waypoint.service";
 import {PlacementTile} from "./model/placement-tile";
-import {PlacementTileFactory} from "./factory/placement-tile-factory/placement-tile-factory.module";
+import {PlacementTileFactory} from "./factory/placement-tile-factory.module";
 import {BehaviorSubject, Subject, fromEvent, switchMap, exhaustMap, mergeMap, tap} from "rxjs";
 import {take} from "rxjs/operators";
 import {Building} from "./model/building";
 import {PlacementTilesManager} from "./manager/placement-tiles-manager";
 import {EnemyManager} from "./manager/enemy-manager";
+import {BuildingManager} from "./manager/building-manager";
 
 @Component({
   selector: 'app-root',
@@ -21,9 +22,9 @@ export class AppComponent implements OnInit,AfterViewInit{
   image!: HTMLImageElement;
   canvas!: HTMLCanvasElement;
   canvasContext!: CanvasRenderingContext2D;
-  buildings: Building[] = [];
   enemyFactory!: EnemyFactory;
   enemyManager!: EnemyManager;
+  buildingManager!: BuildingManager;
   placementTileFactory!: PlacementTileFactory;
   dataService = new DataService();
   activeTile: PlacementTile | null = null;
@@ -38,6 +39,7 @@ export class AppComponent implements OnInit,AfterViewInit{
     this.enemyManager = new EnemyManager(this.canvasContext);
     this.placementTileFactory = new PlacementTileFactory(this.canvasContext);
     this.placementTilesManager = new PlacementTilesManager(this.canvasContext)
+    this.buildingManager = new BuildingManager();
 
     this.image = new Image();
     this.image.src = '../../assets/map.png';
@@ -55,7 +57,7 @@ export class AppComponent implements OnInit,AfterViewInit{
 
   buildConstructor = () => {
     if(this.placementTilesManager.getActiveTile() && !this.placementTilesManager.getActiveTile()?.isOccupied){
-      this.buildings.push(new Building(this.canvasContext,this.placementTilesManager.getActiveTile()?.position))
+      this.buildingManager.getBuilding().push(new Building(this.canvasContext,this.placementTilesManager.getActiveTile()?.position))
       this.placementTilesManager.getActiveTile()!.isOccupied = true;
     }
   }
@@ -80,20 +82,14 @@ export class AppComponent implements OnInit,AfterViewInit{
     this.placementTilesManager.getPlacementTiles().forEach(tile => {
       tile.update();
     })
-    this.buildings.forEach(build => {
+    this.buildingManager.getBuilding().forEach(build => {
       build.update();
-      const validEnemy = this.enemyManager.getEnemies().filter(enemy => {
-        const xDifference = enemy.center.x - build.getCenter().x;
-        const yDifference = enemy.center.y - build.getCenter().y;
-        const distance = Math.hypot(xDifference,yDifference);
-        return distance < enemy.radius + build.rangeRadius
-      })
-      build.target = validEnemy[0];
+      build.target = build.getValidEnemy(this.enemyManager);
       for(let i = build.projectiles.length - 1 ; i>=0; i--){
         const projectile = build.projectiles[i];
         projectile.update();
         if(projectile.isColliding()){
-          console.log(this.buildings[0].getPosition());
+          build.target.healt -= projectile.damage;
           build.projectiles.splice(i,1);
         }
       }

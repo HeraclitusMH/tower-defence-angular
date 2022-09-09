@@ -1,10 +1,11 @@
 import {Position} from "../interface/position";
 import {Projectile} from "./projectile";
 import {Enemy} from "./enemy";
+import {EnemyManager} from "../manager/enemy-manager";
 
 export class Building {
-  private position!: Position;
-  private center!: Position;
+  private readonly position!: Position;
+  private readonly center!: Position;
   c!: CanvasRenderingContext2D;
   projectiles: Projectile[] = [];
   width: number = 64;
@@ -53,5 +54,18 @@ export class Building {
 
   getCenter = () => {
     return this.center;
+  }
+
+  getValidEnemy = (enemyManager: EnemyManager): Enemy => {
+    return this.getValidEnemies(enemyManager)[0];
+  }
+
+  private getValidEnemies = (enemyManager: EnemyManager) => {
+    return enemyManager.getEnemies().filter(enemy => {
+      const xDifference = enemy.center.x - this.getCenter().x;
+      const yDifference = enemy.center.y - this.getCenter().y;
+      const distance = Math.hypot(xDifference,yDifference);
+      return distance < enemy.radius + this.rangeRadius
+    });
   }
 }

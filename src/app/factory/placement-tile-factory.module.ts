@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {BehaviorSubject} from 'rxjs';
-import {PlacementTile} from "../../model/placement-tile";
-import {DataService} from "../../data/waypoint.service";
+import {PlacementTile} from "../model/placement-tile";
+import {DataService} from "../data/waypoint.service";
 import {Subject} from "rxjs";
-import {Position} from "../../interface/position";
-import {PlacementTilesManager} from "../../manager/placement-tiles-manager";
+import {Position} from "../interface/position";
+import {PlacementTilesManager} from "../manager/placement-tiles-manager";
 
 @NgModule({
   declarations: [],

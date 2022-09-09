@@ -11,17 +11,15 @@ export class EnemyFactory {
     this.context = ctx;
   }
 
-  generateEnemy = (enemies: Enemy[], pos?:Position): Enemy[] => {
+  generateEnemy = (enemyManager: EnemyManager, pos?:Position) => {
     if(pos){
-      enemies.push(new Enemy(this.context, pos))
-      return enemies;
+      enemyManager.getEnemies().push(new Enemy(this.context, enemyManager, pos))
     }
     let startingPosition = {
       x: DataService.waypoints[0].x,
       y: DataService.waypoints[0].y
     }
-    enemies.push(new Enemy(this.context, startingPosition));
-    return enemies;
+    enemyManager.getEnemies().push(new Enemy(this.context, enemyManager, startingPosition));
   }
 
   generateWave = (nOfEnemies: number, enemyManager: EnemyManager): void => {
@@ -30,8 +28,7 @@ export class EnemyFactory {
         x: DataService.waypoints[0].x - i*150,
         y: DataService.waypoints[0].y
       }
-      enemyManager.getEnemies().push(new Enemy(this.context, position));
-      console.log(enemyManager.getEnemies());
+      enemyManager.getEnemies().push(new Enemy(this.context,enemyManager, position));
     }
   }
 

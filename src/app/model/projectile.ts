@@ -7,7 +7,9 @@ export class Projectile {
   distance: any;
   enemy!: Enemy;
   radius = 10;
+
   velocityPower = 5;
+  damage = 20;
 
   constructor(context: CanvasRenderingContext2D, pos = {x:0, y:0}, enemy : Enemy) {
     this.c = context;

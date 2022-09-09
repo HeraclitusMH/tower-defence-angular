@@ -1,7 +1,7 @@
 import {Position} from "../interface/position";
 import {OnInit} from "@angular/core";
 import {Subject,Subscription,fromEvent} from "rxjs";
-import {PlacementTileFactory} from "../factory/placement-tile-factory/placement-tile-factory.module";
+import {PlacementTileFactory} from "../factory/placement-tile-factory.module";
 import {PlacementTilesManager} from "../manager/placement-tiles-manager";
 
 export class PlacementTile {
