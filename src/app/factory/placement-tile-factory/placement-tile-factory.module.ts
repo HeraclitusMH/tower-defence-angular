@@ -17,9 +17,9 @@ export class PlacementTileFactory {
   subject = new BehaviorSubject(null);
   dataService = new DataService();
   c!: CanvasRenderingContext2D;
-  activeTile: Subject<PlacementTile>;
+  activeTile: Subject<PlacementTile | null>;
 
-  constructor(canvasContext:CanvasRenderingContext2D, activeTileSub: Subject<PlacementTile>) {
+  constructor(canvasContext:CanvasRenderingContext2D, activeTileSub: Subject<PlacementTile | null>) {
     this.c = canvasContext;
     this.activeTile = activeTileSub
   }

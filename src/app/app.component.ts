@@ -5,7 +5,9 @@ import {Position} from "./interface/position";
 import {DataService} from "./data/waypoint.service";
 import {PlacementTile} from "./model/placement-tile";
 import {PlacementTileFactory} from "./factory/placement-tile-factory/placement-tile-factory.module";
-import {BehaviorSubject, Subject} from "rxjs";
+import {BehaviorSubject, Subject, fromEvent} from "rxjs";
+import {take} from "rxjs/operators";
+import {Building} from "./model/building";
 
 @Component({
   selector: 'app-root',
@@ -18,11 +20,12 @@ export class AppComponent implements OnInit,AfterViewInit{
   canvas!: HTMLCanvasElement;
   canvasContext!: CanvasRenderingContext2D;
   enemies: Enemy[] = [];
+  buildings: Building[] = [];
   placementTiles: PlacementTile[] = [];
   enemyFactory!: EnemyFactory;
   placementTileFactory!: PlacementTileFactory;
   dataService = new DataService();
-  activeTile = new Subject<PlacementTile>();
+  activeTile = new Subject<PlacementTile | null>();
 
   ngOnInit(){
     this.canvas = this.initializeCanvas();
@@ -35,9 +38,17 @@ export class AppComponent implements OnInit,AfterViewInit{
 
     this.enemyFactory.generateWave(6);
     this.placementTileFactory.generatePlacementTilesData();
-    this.activeTile.subscribe((val) =>{
-      console.log(val);
+
+    fromEvent(document, 'click').subscribe(x => {
+      console.log(this.activeTile);
+      this.activeTile.pipe(take(1)).subscribe((activeTileHover) => {
+        if(activeTileHover){
+          this.buildings.push(new Building(this.canvasContext,activeTileHover.position));
+        }
+      })
     })
+
+
   }
 
   ngAfterViewInit(){
@@ -58,7 +69,10 @@ export class AppComponent implements OnInit,AfterViewInit{
       enemy.update();
     });
     this.placementTileFactory.getPlacementTiles().forEach(tile => {
-      tile.update();
+      tile.update(this.activeTile);
+    })
+    this.buildings.forEach(build => {
+      build.draw();
     })
   }
 

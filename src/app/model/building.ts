@@ -11,6 +11,6 @@ export class Building {
 
   draw = () => {
     this.c.fillStyle = 'blue';
-
+    this.c.fillRect(this.position.x,this.position.y,64,64)
   }
 }
