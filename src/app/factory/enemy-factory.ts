@@ -1,39 +1,38 @@
 import {Position} from "../interface/position";
-import {Enemy} from "../model/enemy/enemy";
+import {Enemy} from "../model/enemy";
 import {DataService} from "../data/waypoint.service";
+import {EnemyManager} from "../manager/enemy-manager";
 
 export class EnemyFactory {
 
   private readonly context!: CanvasRenderingContext2D;
-  enemies!: Enemy[];
 
-  constructor(ctx: CanvasRenderingContext2D, enemies: Enemy[]) {
-    this.enemies = enemies;
+  constructor(ctx: CanvasRenderingContext2D) {
     this.context = ctx;
   }
 
-  generateEnemy = (pos?:Position): Enemy[] => {
+  generateEnemy = (enemies: Enemy[], pos?:Position): Enemy[] => {
     if(pos){
-      this.enemies.push(new Enemy(this.context, pos))
-      return this.enemies;
+      enemies.push(new Enemy(this.context, pos))
+      return enemies;
     }
     let startingPosition = {
       x: DataService.waypoints[0].x,
       y: DataService.waypoints[0].y
     }
-    this.enemies.push(new Enemy(this.context, startingPosition));
-    return this.enemies;
+    enemies.push(new Enemy(this.context, startingPosition));
+    return enemies;
   }
 
-  generateWave = (nOfEnemies: number): Enemy[] => {
+  generateWave = (nOfEnemies: number, enemyManager: EnemyManager): void => {
     for(let i = 1; i <= nOfEnemies; i ++){
       let position = {
         x: DataService.waypoints[0].x - i*150,
         y: DataService.waypoints[0].y
       }
-      this.enemies.push(new Enemy(this.context, position));
+      enemyManager.getEnemies().push(new Enemy(this.context, position));
+      console.log(enemyManager.getEnemies());
     }
-    return this.enemies;
   }
 
 }

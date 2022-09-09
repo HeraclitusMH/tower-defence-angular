@@ -11,6 +11,7 @@ export class PlacementTile {
   size = 64;
   color = 'rgba(255,255,255,0.2)';
   placementTileManager: PlacementTilesManager;
+  isOccupied = false;
 
   constructor(context: CanvasRenderingContext2D, pos = {x:0, y:0},
               placementTileManager: PlacementTilesManager) {

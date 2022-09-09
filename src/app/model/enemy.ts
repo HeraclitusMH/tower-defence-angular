@@ -1,10 +1,11 @@
-import {Position} from "../../interface/position";
-import {DataService} from "../../data/waypoint.service";
+import {Position} from "../interface/position";
+import {DataService} from "../data/waypoint.service";
 
 export class Enemy {
   position: Position;
   width: number;
   height: number;
+  radius: number;
   waypointIndex = 0;
   center!: Position;
 
@@ -16,8 +17,9 @@ export class Enemy {
     this.wayPoints = DataService.waypoints;
     pos ? this.position = pos : this.position = { x:0, y:0 }
 
-    this.width = 100;
-    this.height = 100;
+    this.width = 35;
+    this.height = 35;
+    this.radius = 35;
 
     this.center = {
       x: this.position.x + this.width / 2,
@@ -26,8 +28,10 @@ export class Enemy {
   }
 
   draw = () => {
+    this.c.beginPath();
+    this.c.arc(this.center.x,this.center.y, this.radius, 0, Math.PI * 2);
     this.c.fillStyle = 'red';
-    this.c.fillRect(this.position.x,this.position.y,this.width,this.height);
+    this.c.fill()
   }
 
   update = () => {
