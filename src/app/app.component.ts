@@ -5,9 +5,10 @@ import {Position} from "./interface/position";
 import {DataService} from "./data/waypoint.service";
 import {PlacementTile} from "./model/placement-tile";
 import {PlacementTileFactory} from "./factory/placement-tile-factory/placement-tile-factory.module";
-import {BehaviorSubject, Subject, fromEvent} from "rxjs";
+import {BehaviorSubject, Subject, fromEvent, switchMap, exhaustMap, mergeMap, tap} from "rxjs";
 import {take} from "rxjs/operators";
 import {Building} from "./model/building";
+import {PlacementTilesManager} from "./manager/placement-tiles-manager";
 
 @Component({
   selector: 'app-root',
@@ -21,34 +22,33 @@ export class AppComponent implements OnInit,AfterViewInit{
   canvasContext!: CanvasRenderingContext2D;
   enemies: Enemy[] = [];
   buildings: Building[] = [];
-  placementTiles: PlacementTile[] = [];
   enemyFactory!: EnemyFactory;
   placementTileFactory!: PlacementTileFactory;
   dataService = new DataService();
-  activeTile = new Subject<PlacementTile | null>();
+  activeTile: PlacementTile | null = null;
+  click$ = fromEvent(document, 'click');
+
+  placementTilesManager!: PlacementTilesManager;
 
   ngOnInit(){
     this.canvas = this.initializeCanvas();
     this.canvasContext = this.canvas.getContext('2d')!;
     this.enemyFactory = new EnemyFactory(this.canvasContext,this.enemies);
-    this.placementTileFactory = new PlacementTileFactory(this.canvasContext, this.activeTile);
+    this.placementTileFactory = new PlacementTileFactory(this.canvasContext);
+    this.placementTilesManager = new PlacementTilesManager(this.canvasContext)
 
     this.image = new Image();
     this.image.src = '../../assets/map.png';
 
     this.enemyFactory.generateWave(6);
-    this.placementTileFactory.generatePlacementTilesData();
+    this.placementTileFactory.generatePlacementTilesData(this.placementTilesManager);
+    this.subToClick();
+  }
 
-    fromEvent(document, 'click').subscribe(x => {
-      console.log(this.activeTile);
-      this.activeTile.pipe(take(1)).subscribe((activeTileHover) => {
-        if(activeTileHover){
-          this.buildings.push(new Building(this.canvasContext,activeTileHover.position));
-        }
-      })
+  subToClick = () => {
+    this.click$.subscribe(x => {
+      console.log(this.placementTilesManager.getActiveTile());
     })
-
-
   }
 
   ngAfterViewInit(){
@@ -68,8 +68,8 @@ export class AppComponent implements OnInit,AfterViewInit{
     this.enemies.forEach(enemy => {
       enemy.update();
     });
-    this.placementTileFactory.getPlacementTiles().forEach(tile => {
-      tile.update(this.activeTile);
+    this.placementTilesManager.getPlacementTiles().forEach(tile => {
+      tile.update();
     })
     this.buildings.forEach(build => {
       build.draw();

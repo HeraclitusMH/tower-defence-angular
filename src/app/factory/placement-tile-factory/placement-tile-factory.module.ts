@@ -5,6 +5,7 @@ import {PlacementTile} from "../../model/placement-tile";
 import {DataService} from "../../data/waypoint.service";
 import {Subject} from "rxjs";
 import {Position} from "../../interface/position";
+import {PlacementTilesManager} from "../../manager/placement-tiles-manager";
 
 @NgModule({
   declarations: [],
@@ -13,18 +14,15 @@ import {Position} from "../../interface/position";
   ]
 })
 export class PlacementTileFactory {
-  private placementTiles: PlacementTile[] = [];
   subject = new BehaviorSubject(null);
   dataService = new DataService();
   c!: CanvasRenderingContext2D;
-  activeTile: Subject<PlacementTile | null>;
 
-  constructor(canvasContext:CanvasRenderingContext2D, activeTileSub: Subject<PlacementTile | null>) {
+  constructor(canvasContext:CanvasRenderingContext2D) {
     this.c = canvasContext;
-    this.activeTile = activeTileSub
   }
 
-  generatePlacementTilesData = () => {
+  generatePlacementTilesData = (placementTilesManager: PlacementTilesManager) => {
     this.dataService.getTowerPlacementTiles().forEach((row, y) =>{
       row.forEach((symbol,x) => {
         if (symbol === 14){
@@ -32,14 +30,9 @@ export class PlacementTileFactory {
             x: x * 64,
             y: y * 64
           }
-          this.placementTiles.push(new PlacementTile(this.c,position,this.activeTile))
+          placementTilesManager.getPlacementTiles().push(new PlacementTile(this.c,position,placementTilesManager))
         }
       })
     })
   }
-
-  getPlacementTiles = () => {
-    return this.placementTiles;
-  }
-
 }
