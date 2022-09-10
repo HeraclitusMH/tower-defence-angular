@@ -32,13 +32,19 @@ export class Enemy {
     }
   }
 
-  draw = () => {
+  checkAndHandleDeath = () => {
     if(this.healt <= 0){
       const index = this.enemyManager.getEnemies().findIndex(enemy => {
         return enemy === this;
       })
-      this.enemyManager.getEnemies().splice(index,1);
+      if(index >= -1){
+        this.enemyManager.getEnemies().splice(index,1);
+      }
     }
+  }
+
+  draw = () => {
+    this.checkAndHandleDeath();
     this.c.beginPath();
     this.c.arc(this.center.x,this.center.y, this.radius, 0, Math.PI * 2);
 

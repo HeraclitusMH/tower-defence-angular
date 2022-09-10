@@ -29,6 +29,7 @@ export class AppComponent implements OnInit,AfterViewInit{
   dataService = new DataService();
   activeTile: PlacementTile | null = null;
   click$ = fromEvent(document, 'click');
+  level = 0;
 
   placementTilesManager!: PlacementTilesManager;
 
@@ -44,7 +45,6 @@ export class AppComponent implements OnInit,AfterViewInit{
     this.image = new Image();
     this.image.src = '../../assets/map.png';
 
-    this.enemyFactory.generateWave(6,this.enemyManager);
     this.placementTileFactory.generatePlacementTilesData(this.placementTilesManager);
     this.clickListener();
   }
@@ -76,16 +76,25 @@ export class AppComponent implements OnInit,AfterViewInit{
   animate = () => {
     requestAnimationFrame(() => this.animate());
     this.canvasContext.drawImage(this.image,0,0);
-    this.enemyManager.getEnemies().forEach(enemy => {
-      enemy.update();
-    });
+
+    if(this.enemyManager.getEnemies().length === 0){
+      this.level++;
+      this.enemyFactory.generateWave(5 + this.level, this.enemyManager);
+    }
+
     this.placementTilesManager.getPlacementTiles().forEach(tile => {
       tile.update();
     })
+
+    for(let i = this.enemyManager.getEnemies().length - 1 ; i >= 0; i--){
+      const enemy = this.enemyManager.getEnemies()[i];
+      enemy.update();
+    }
+
     this.buildingManager.getBuilding().forEach(build => {
       build.update();
       build.target = build.getValidEnemy(this.enemyManager);
-      for(let i = build.projectiles.length - 1 ; i>=0; i--){
+      for(let i = build.projectiles.length - 1 ; i >= 0; i--){
         const projectile = build.projectiles[i];
         projectile.update();
         if(projectile.isColliding()){
