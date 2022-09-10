@@ -89,7 +89,7 @@ export class AppComponent implements OnInit,AfterViewInit{
         const projectile = build.projectiles[i];
         projectile.update();
         if(projectile.isColliding()){
-          build.target.healt -= projectile.damage;
+          projectile.hitEnemy();
           build.projectiles.splice(i,1);
         }
       }

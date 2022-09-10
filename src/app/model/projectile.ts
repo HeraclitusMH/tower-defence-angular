@@ -35,6 +35,10 @@ export class Projectile {
     return this.calcDistance() < this.enemy.radius;
   }
 
+  hitEnemy = () => {
+    this.enemy.healt -= this.damage;
+  }
+
   calcVelocity = () => {
     const angle = Math.atan2(
       this.enemy.center.y - this.position.y,
